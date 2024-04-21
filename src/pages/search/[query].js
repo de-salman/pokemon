@@ -1,8 +1,6 @@
 import Link from "next/link";
-import { usePokemonCategories } from "@/hooks/usePokemonCategories";
 import styled from "styled-components";
 import { usePokemonDetails } from "@/hooks/usePokemonDetails";
-import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Navbar from "@/components/Navbar";
 
@@ -28,10 +26,10 @@ const categoryColors = {
   unknown: "linear-gradient(0deg, rgba(255, 255, 255, 0) 0%, #808080 100%)",
   shadow: "linear-gradient(0deg, rgba(255, 255, 255, 0) 0%, #808080 100%)",
 };
-
 const MainSec = styled.div`
   background: #79c9fa;
   padding-top: 50px;
+  min-height: calc(100vh - 250px);
 `;
 
 const MainDiv = styled.div`
@@ -39,35 +37,6 @@ const MainDiv = styled.div`
   flex-wrap: wrap;
   justify-content: center;
   text-align: center;
-`;
-
-const SearchDiv = styled.div`
-  margin: 0px;
-  display: flex;
-  justify-content: center;
-  margin-bottom: 40px;
-`;
-
-const SearchInput = styled.input`
-  background-color: #fff;
-  color: rgb(122, 125, 128);
-  padding: 15px;
-  border-radius: 20px;
-  font-size: 18px;
-  border: none;
-  &:focus {
-    border: none;
-    outline: none;
-  }
-`;
-
-const SearchButton = styled.button`
-  padding: 10px;
-  font-size: 22px;
-  margin-left: 10px;
-  background-color: #fff;
-  border-radius: 50%;
-  border: none;
 `;
 
 const CategoryCard = styled.div`
@@ -103,50 +72,49 @@ const BottomBg = styled.div`
   background-repeat: repeat-x;
 `;
 
-export default function Home() {
-  const [search, setSearch] = useState("");
-  const { data, isLoading, error } = usePokemonCategories();
-  const router = useRouter();
+const Pokeidp = styled.p`
+  top: 10px;
+  font-size: 2.5rem;
+  opacity: 0.5;
+  font-weight: 700;
+`;
 
-  useEffect(() => {
-    console.log(data);
-  }, [data]);
+export default function Search() {
+  const router = useRouter();
+  const { query } = router.query;
+  const { data, isLoading, error } = usePokemonDetails(query);
 
   if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
-
-  const handleSearch = () => {
-    if (search) {
-      router.push(`search/${search}`);
-    }
-  };
+  if (error)
+    return (
+      <div>No Pokemon is found with given query , Error: {error.message}</div>
+    );
 
   return (
     <>
       <Navbar />
       <MainSec>
         <MainDiv>
-          {data.results.slice(0, -2).map((category) => (
-            <Link
-              key={category.name}
-              href={`/categories/${category.name}`}
-              style={{
-                textDecoration: "none",
-                margin: "20px",
-                borderRadius: "20px",
-                background: "#fff",
-              }}
-            >
-              <CategoryCard categoryName={category.name}>
-                <img
-                  src={`/category/${category.name}.webp`}
-                  width={"100px"}
-                  style={{ marginBottom: "10px" }}
-                />
-                {category.name}
-              </CategoryCard>
-            </Link>
-          ))}
+          <Link
+            key={data.name}
+            href={`/pokemon/${data.name}`}
+            style={{
+              textDecoration: "none",
+              margin: "20px",
+              borderRadius: "20px",
+              background: "#fff",
+            }}
+          >
+            <CategoryCard categoryName={data.name}>
+              <Pokeidp>#{data.id}</Pokeidp>
+              <img
+                src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${data.id}.png`}
+                width={"170px"}
+                style={{ marginBottom: "10px" }}
+              />
+              {data.name}
+            </CategoryCard>
+          </Link>
         </MainDiv>
       </MainSec>
       <BottomBg></BottomBg>

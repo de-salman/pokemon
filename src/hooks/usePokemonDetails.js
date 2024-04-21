@@ -9,7 +9,11 @@ const fetchPokemonDetails = async (pokemonName) => {
 };
 
 export const usePokemonDetails = (pokemonName) => {
-  return useQuery(["pokemonDetails", pokemonName], () =>
-    fetchPokemonDetails(pokemonName)
+  return useQuery(
+    ["pokemonDetails", pokemonName],
+    () => fetchPokemonDetails(pokemonName),
+    {
+      retry: false,
+    }
   );
 };
